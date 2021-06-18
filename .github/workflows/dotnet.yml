@@ -43,7 +43,13 @@ jobs:
       run: |
         cd ${{ github.workspace }}
         cd RPX.Extractor\bin\Release\net5.0-windows\publish
-        7z a Release.zip win-x64 win-x86 -xr*.pdb
+        pushd %CD%
+        cd win-x64
+        rm -f *.pdb
+        cd ../win-x86
+        rm -f *.pdb
+        popd
+        7z a Release.zip win-x64 win-x86
     - name: Make a release
       if: github.ref == 'refs/heads/master'
       uses: "marvinpinto/action-automatic-releases@latest"
