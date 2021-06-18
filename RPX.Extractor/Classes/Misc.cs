@@ -29,7 +29,7 @@ namespace RPX.Extractor.Classes
     {
         public static FileInfo ExeInfo
         {
-            get => new FileInfo(Assembly.GetExecutingAssembly().Location);
+            get => new FileInfo(AppContext.BaseDirectory);
         }
 
         public static string PublicIP
