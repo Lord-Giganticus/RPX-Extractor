@@ -1,0 +1,56 @@
+name: .NET
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Restore dependencies
+      shell: cmd
+      run: |
+        cd ${{ github.workspace }}
+        cd RPX.Extractor
+        dotnet restore
+    - name: Build
+      shell: cmd
+      run: |
+        cd ${{ github.workspace }}
+        cd RPX.Extractor
+        dotnet build /p:Configuration=Release
+        dotnet publish /p:PublishProfile=win-x86
+        dotnet publish /p:PublishProfile=win-x64
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v2.2.4
+      with:
+        name: Output
+        path: |
+          ${{ github.workspace }}\RPX.Extractor\bin\Release\net5.0-windows\publish
+    - name: Zip Folders
+      if: github.ref == 'refs/heads/master'
+      shell: cmd
+      run: |
+        cd ${{ github.workspace }}
+        cd RPX.Extractor\bin\Release\net5.0-windows\publish
+        7z a Release.zip win-x64 win-x86 -xr*.pdb
+    - name: Make a release
+      if: github.ref == 'refs/heads/master'
+      uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "Auto"
+        prerelease: true
+        title: "Auto Build"
+        files: |
+          ${{ github.workspace }}\RPX.Extractor\bin\Release\net5.0-windows\publish\Release.zip
