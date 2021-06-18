@@ -50,6 +50,7 @@ jobs:
         rm -f *.pdb
         popd
         7z a Release.zip win-x64 win-x86
+        mv Release.zip ${{ github.workspace }}/.
     - name: Make a release
       if: github.ref == 'refs/heads/master'
       uses: "marvinpinto/action-automatic-releases@latest"
@@ -59,4 +60,4 @@ jobs:
         prerelease: true
         title: "Auto Build"
         files: |
-          ${{ github.workspace }}\RPX.Extractor\bin\Release\net5.0-windows\publish\Release.zip
+          Release.zip
